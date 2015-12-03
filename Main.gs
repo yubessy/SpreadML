@@ -9,7 +9,7 @@ function main() {
   var dataset = U.loadDataset(dataRange);
 
   var model = new LinearRegression();
-  model.train(dataset.training.x, dataset.training.y, 0.03, 100);
+  model.train(dataset.training.x, dataset.training.y, 100, 0.01, 1);
 
   var predictionY = model.predict(dataset.prediction.x);
   U.writeVector(sheet, firstColumn - 1, predictionY, dataset.prediction.rowMap);

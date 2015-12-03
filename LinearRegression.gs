@@ -1,8 +1,9 @@
 var LinearRegression = function () {};
 
-LinearRegression.prototype.train = function (x, y, alpha, numIter) {
-  if (alpha === undefined) alpha = 0.01;
+LinearRegression.prototype.train = function (x, y, numIter, alpha, lambda) {
   if (numIter === undefined) numIter = 100;
+  if (alpha === undefined) alpha = 0.01;
+  if (lambda === undefined) lambda = 0;
 
   x = U.biased(x);
   var m = x.length;
@@ -10,8 +11,13 @@ LinearRegression.prototype.train = function (x, y, alpha, numIter) {
 
   var theta = U.zeros(n);
   for (var i = 0; i < numIter; i++) {
-    var d = N.mul(alpha / m, N.dot(N.transpose(x), N.sub(N.dot(x, theta), y)));
-    N.subeq(theta, d);
+    var d = N.dot(N.transpose(x), N.sub(N.dot(x, theta), y));
+    if (lambda) {
+      var r = N.mul(lambda, theta);
+      r[0] = 0;
+      N.addeq(d, r);
+    }
+    N.subeq(theta, N.mul(alpha / m, d));
   }
 
   this._theta = theta;
