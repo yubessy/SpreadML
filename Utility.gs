@@ -70,8 +70,20 @@ U.loadDataset = function (dataRange) {
   };
 };
 
-U.writeVector = function (sheet, column, vector, rowMap) {
-  for (var i = 0; i < vector.length; i++) {
-    sheet.getRange(rowMap[i], column).setValue(vector[i]);
+U.mergeValues = function (predictionY, predictionRowMap, trainingY, trainingRowMap) {
+  var values = [];
+  for (i = 0; i < predictionY.length; i++) {
+    var idx = predictionRowMap[i] - 1;
+    values[idx] = [predictionY[i]];
   }
+  for (i = 0; i < trainingY.length; i++) {
+    var idx = trainingRowMap[i] - 1;
+    values[idx] = [trainingY[i]];
+  }
+  for (i = 0; i < values.length; i++) {
+    if (!values[i]) {
+      values[i] = [undefined];
+    }
+  }
+  return values;
 };
