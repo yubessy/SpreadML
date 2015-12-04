@@ -24,16 +24,22 @@ function run() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
 
   var dataSheet = ss.getActiveSheet();
-  var rawValues = dataSheet.getDataRange().getValues();
-  var dataset = U.loadDataset(rawValues, true);
+  var firstRow = 2;
+  var firstColumn = 1;
+  var numRow = dataSheet.getLastRow() - firstRow + 1;
+  var numColumn = dataSheet.getLastColumn() - firstRow + 1;
+  var dataRange = dataSheet.getRange(firstRow, firstColumn, numRow, numColumn);
+  var dataset = U.loadDataset(dataRange.getValues());
 
   var model = new LinearRegression();
   model.train(dataset.training.x, dataset.training.y, 100, 0.01, 1);
   var predictionY = model.predict(dataset.prediction.x);
   var trainingY_ = model.predict(dataset.training.x);
 
-  var values = U.mergeValues(predictionY, dataset.prediction.rowMap, trainingY_, dataset.training.rowMap, dataset.label.y);
   var resultSheet = ss.insertSheet(dataSheet.getName() + "_result");
-  var resultRange = resultSheet.getRange(1, 1, values.length);
+  resultSheet.getRange(1, 1).setValue(dataSheet.getRange(1, 1).getValue());
+
+  var values = U.mergeValues(predictionY, dataset.prediction.idxMap, trainingY_, dataset.training.idxMap);
+  var resultRange = resultSheet.getRange(firstRow, 1, numRow);
   resultRange.setValues(values);
 }
