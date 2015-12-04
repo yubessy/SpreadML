@@ -33,31 +33,38 @@ U.rmse = function (v1, v2) {
   return N.sum(N.pow(N.sub(v1, v2), 2)) / v1.length;
 };
 
-U.loadDataset = function (dataRange) {
-  var values = dataRange.getValues();
-  var firstRow = dataRange.getRow();
-
+U.loadDataset = function (rawValues, withLabel) {
+  var labelX = undefined;
+  var labelY = undefined;
   var trainingX = [];
   var trainingY = [];
   var trainingRowMap = [];
   var predictionX = [];
-  var predictionY = [];
   var predictionRowMap = [];
-  for (var i = 0; i < values.length; i++) {
-    var x = U.toNumber(values[i].slice(1));
-    var y = values[i][0];
-    var idx = i + firstRow;
+  for (var i = 0; i < rawValues.length; i++) {
+    if (withLabel && i == 0) {
+      labelX = rawValues[i].slice(1);
+      labelY = rawValues[i][0];
+      continue;
+    }
+    var x = U.toNumber(rawValues[i].slice(1));
+    var y = rawValues[i][0];
+    var rowIdx = i + 1;
     if (U.isNumber(y)) {
       trainingX.push(x);
       trainingY.push(y);
-      trainingRowMap.push(idx);
+      trainingRowMap.push(rowIdx);
     } else {
       predictionX.push(x);
-      predictionRowMap.push(idx);
+      predictionRowMap.push(rowIdx);
     }
   }
 
   return {
+    label: {
+      x: labelX,
+      y: labelY
+    },
     training: {
       x: trainingX,
       y: trainingY,
@@ -70,8 +77,9 @@ U.loadDataset = function (dataRange) {
   };
 };
 
-U.mergeValues = function (predictionY, predictionRowMap, trainingY, trainingRowMap) {
+U.mergeValues = function (predictionY, predictionRowMap, trainingY, trainingRowMap, labelY) {
   var values = [];
+  values[0] = [labelY];
   for (i = 0; i < predictionY.length; i++) {
     var idx = predictionRowMap[i] - 1;
     values[idx] = [predictionY[i]];
